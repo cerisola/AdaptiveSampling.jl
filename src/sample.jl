@@ -74,12 +74,14 @@ function sample_costs(
     f,
     a,
     b,
-    cost::AbstractCost{N}=CompositeCost((UniformCost((a, b)), VisvalingamCost((a, b), (f(a), f(b)))), (1, 100));
+    cost::AbstractCost{N}=CompositeCost((UniformCost((a, b)), VisvalingamCost((a, b), (a, b))), (1, 100));
     tol=1e-3,
     maxsamples=10000
 ) where {N}
     a, b = promote(a, b)
-    x = collect(range(a, b; length=N))
+    L = abs(b - a)
+    shift = min(10*eps(), 1/maxsamples/2)
+    x = collect(range(a + L*shift, b - L*shift; length=N))
     y = f.(x)
     c = [cost(svk(x, 1, N), svk(y, 1, N))]
 
@@ -125,7 +127,7 @@ function sample(
     f,
     a,
     b,
-    cost=CompositeCost((UniformCost((a, b)), VisvalingamCost((a, b), (f(a), f(b)))), (1, 100));
+    cost=CompositeCost((UniformCost((a, b)), VisvalingamCost((a, b), (a, b))), (1, 100));
     tol=1e-3,
     maxsamples=10000
 )
