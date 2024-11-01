@@ -79,9 +79,12 @@ function sample_costs(
     a, b = promote(a, b)
     L = abs(b - a)
     shift = min(10*eps(), 1/maxsamples/2)
-    x = collect(range(a + L*shift, b - L*shift; length=N))
+    x = collect(range(a + L*shift, b - L*shift; length=5*N))
     y = f.(x)
-    c = [cost(svk(x, 1, N), svk(y, 1, N))]
+    c = zeros(length(x) - N + 1)
+    for k in 1:(length(x) - N + 1)
+        c[k] = cost(svk(x, k, N), svk(y, k, N))
+    end
 
     counter = N
     while maximum(c) > tol && counter < maxsamples
