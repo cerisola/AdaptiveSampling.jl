@@ -74,7 +74,7 @@ function sample_costs(
     f,
     a,
     b,
-    cost::AbstractCost{N}=CompositeCost((UniformCost(a, b), VisvalingamCost(a, b, f(a), f(b))), (1, 100));
+    cost::AbstractCost{N}=CompositeCost((UniformCost((a, b)), VisvalingamCost((a, b), (f(a), f(b)))), (1, 100));
     tol=1e-3,
     maxsamples=10000
 ) where {N}
@@ -125,7 +125,7 @@ function sample(
     f,
     a,
     b,
-    cost=CompositeCost((UniformCost(a, b), VisvalingamCost(a, b, f(a), f(b))), (1, 100));
+    cost=CompositeCost((UniformCost((a, b)), VisvalingamCost((a, b), (f(a), f(b)))), (1, 100));
     tol=1e-3,
     maxsamples=10000
 )

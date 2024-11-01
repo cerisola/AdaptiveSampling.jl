@@ -19,9 +19,11 @@ struct UniformCost <: AbstractCost{2}
 
     UniformCost() = new(1.0)
 
-    UniformCost(norm) = new(Float64(norm))
+    UniformCost(norm::Real) = new(Float64(norm))
 
-    UniformCost(a, b) = UniformCost(abs(b - a))
+    UniformCost(x) = UniformCost(maximum(x) - minimum(x))
+
+    UniformCost(x, y) = UniformCost(x)
 end
 
 (c::UniformCost)(x, y) = abs(last(x) - first(x))/c.norm

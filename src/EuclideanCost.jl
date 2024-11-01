@@ -19,9 +19,11 @@ struct EuclideanCost <: AbstractCost{2}
 
     EuclideanCost() = new(1.0)
 
-    EuclideanCost(norm) = new(Float64(norm))
+    EuclideanCost(norm::Real) = new(Float64(norm))
 
-    EuclideanCost(a, b, fa, fb) = EuclideanCost(hypot(b - a, fb - fa))
+    EuclideanCost(x) = EuclideanCost(hypot(maximum(x) - minimum(x), 1))
+
+    EuclideanCost(x, y) = EuclideanCost(hypot(maximum(x) - minimum(x), maximum(y) - minimum(y)))
 end
 
 (c::EuclideanCost)(x, y) = hypot(last(x) - first(x), last(y) - first(y))/c.norm

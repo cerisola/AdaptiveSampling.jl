@@ -20,9 +20,17 @@ struct VisvalingamCost <: AbstractCost{3}
 
     VisvalingamCost() = new(1.0)
 
-    VisvalingamCost(norm) = new(Float64(norm))
+    VisvalingamCost(norm::Real) = new(Float64(norm))
 
-    VisvalingamCost(a, b, fa, fb) = VisvalingamCost(abs((b - a)*(fb - fa))/2)
+    VisvalingamCost(x) = VisvalingamCost(x, x)
+
+    function VisvalingamCost(x, y)
+        if maximum(y) == minimum(y)
+            return VisvalingamCost(x, x)
+        else
+            return VisvalingamCost((maximum(x) - minimum(x))*(maximum(y) - minimum(y))/2)
+        end
+    end
 end
 
 (c::VisvalingamCost)(x, y) = sqrt(area(x, y)/c.norm)
