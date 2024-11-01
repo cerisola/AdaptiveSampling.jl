@@ -50,8 +50,6 @@ function refine!(x, y, c, f, cost::AbstractCost{N}) where {N}
     end
 end
 
-const _PREALLOC_SIZE = 100
-
 """
     sample_costs(f, a, b; cost::AbstractCost=CompositeCost((UniformCost(a, b), VisvalingamCost(a, b, f(a), f(b))), (1, 100)), tol=1e-3, maxsamples=10000)
 
@@ -84,10 +82,6 @@ function sample_costs(
     x = collect(range(a + L*shift, b - L*shift; length=N))
     y = f.(x)
     c = [cost(svk(x, 1, N), svk(y, 1, N))]
-
-    sizehint!(x, _PREALLOC_SIZE)
-    sizehint!(y, _PREALLOC_SIZE)
-    sizehint!(c, _PREALLOC_SIZE)
 
     counter = N
     while maximum(c) > tol && counter < maxsamples
