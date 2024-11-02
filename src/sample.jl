@@ -84,9 +84,12 @@ function sample_costs(
 
     if isnothing(nsamples)
         nsamples = maxsamples
+    else
+        maxsamples = nsamples + 1
+        tol = 0.0
     end
-    init_nsamples = min(5*N, nsamples, maxsamples)
 
+    init_nsamples = min(5*N, nsamples, maxsamples)
     x = collect(range(a + L*shift, b - L*shift; length=init_nsamples))
     rand_coef = 2e-2
     for k in 2:(length(x) - 1)
