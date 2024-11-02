@@ -103,10 +103,6 @@ function sample_costs(
         @warn "Maximum number of iterations reached without convergence."
     end
 
-    resize!(x, length(x))
-    resize!(y, length(y))
-    resize!(c, length(c))
-
     return x, y, c
 end
 
