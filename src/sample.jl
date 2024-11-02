@@ -51,6 +51,7 @@ function refine!(x, y, c, f, cost::AbstractCost{N}) where {N}
 end
 
 """
+    sample(f, a, b, nsamples::Uniont{Int, Nothing}; cost::AbstractCost=CompositeCost((UniformCost(a, b), VisvalingamCost(a, b, f(a), f(b))), (1, 100)), tol=1e-3, maxsamples=10000)
     sample_costs(f, a, b, nsamples::Uniont{Int, Nothing}; cost::AbstractCost=CompositeCost((UniformCost(a, b), VisvalingamCost(a, b, f(a), f(b))), (1, 100)), tol=1e-3, maxsamples=10000)
 
 Samples the function `f` over the interval `[a, b]` and computes the associated costs using the specified cost function. The sampling process continues until the maximum cost is below the tolerance `tol` or the maximum number of samples `maxsamples` is reached.
@@ -67,7 +68,7 @@ Samples the function `f` over the interval `[a, b]` and computes the associated 
 # Returns
 - `x`: A vector of sample points.
 - `y`: A vector of function values at the sample points.
-- `c`: A vector of costs associated with the sample points.
+- `c`: A vector of costs associated with the sample points (only returned by `sample_costs`).
 """
 function sample_costs(
     f,
@@ -116,33 +117,7 @@ function sample_costs(
     return x, y, c
 end
 
-"""
-    sample(f, a, b, nsamples::Uniont{Int, Nothing}; cost::AbstractCost=CompositeCost((UniformCost(a, b), VisvalingamCost(a, b, f(a), f(b))), (1, 100)), tol=1e-3, maxsamples=10000)
-
-Samples the function `f` over the interval `[a, b]` using the specified cost function. The sampling process continues until the maximum cost is below the tolerance `tol` or the maximum number of samples `maxsamples` is reached.
-
-# Arguments
-- `f`: The function to be sampled.
-- `a`: The start of the interval.
-- `b`: The end of the interval.
-- `nsamples::Union{Int, Nothing}`: The number of samples to be taken. If `nothing`, the number of samples will be determined by the tolerance `tol`. Defaults to `nothing`.
-- `cost::AbstractCost`: The cost function to be used. Defaults to a composite cost combining `UniformCost` and `VisvalingamCost`.
-- `tol`: The tolerance for the maximum cost. Defaults to `1e-3`. The tolerance is only used if `nsamples` is `nothing`.
-- `maxsamples`: The maximum number of samples. Defaults to `10000`.
-
-# Returns
-- `x`: A vector of sample points.
-- `y`: A vector of function values at the sample points.
-"""
-function sample(
-    f,
-    a,
-    b,
-    nsamples::Union{Int, Nothing}=nothing;
-    cost=VisvalingamCost((a, b)),
-    tol=1e-3,
-    maxsamples=10000
-)
-    x, y, c = sample_costs(f, a, b, nsamples; cost=cost, tol=tol, maxsamples=maxsamples)
+function sample(args...; kwargs...)
+    x, y, c = sample_costs(args...; kwargs...)
     return x, y
 end
