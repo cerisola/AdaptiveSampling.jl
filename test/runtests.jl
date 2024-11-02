@@ -7,10 +7,19 @@ using Test
         a = 0
         b = 2π
         cost = VisvalingamCost(1.0)
-        x, y, c = sample_costs(f, a, b, cost; tol=1e-2, maxsamples=10000)
+        x, y, c = sample_costs(f, a, b; cost=cost, tol=1e-2)
         @test length(x) > 0
         @test length(y) == length(x)
         @test length(c) == length(x) - 2
+    end
+
+    @testset "sample call methods" begin
+        f(x) = sin(x)
+        a = 0
+        b = 2π
+        nsamples = 100
+        x, y = sample(f, a, b, nsamples)
+        @test length(x) == nsamples
     end
 
     @testset "UniformCost" begin

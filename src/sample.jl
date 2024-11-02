@@ -51,7 +51,7 @@ function refine!(x, y, c, f, cost::AbstractCost{N}) where {N}
 end
 
 """
-    sample_costs(f, a, b; cost::AbstractCost=CompositeCost((UniformCost(a, b), VisvalingamCost(a, b, f(a), f(b))), (1, 100)), tol=1e-3, maxsamples=10000)
+    sample_costs(f, a, b, nsamples::Uniont{Int, Nothing}; cost::AbstractCost=CompositeCost((UniformCost(a, b), VisvalingamCost(a, b, f(a), f(b))), (1, 100)), tol=1e-3, maxsamples=10000)
 
 Samples the function `f` over the interval `[a, b]` and computes the associated costs using the specified cost function. The sampling process continues until the maximum cost is below the tolerance `tol` or the maximum number of samples `maxsamples` is reached.
 
@@ -59,8 +59,9 @@ Samples the function `f` over the interval `[a, b]` and computes the associated 
 - `f`: The function to be sampled.
 - `a`: The start of the interval.
 - `b`: The end of the interval.
+- `nsamples::Union{Int, Nothing}`: The number of samples to be taken. If `nothing`, the number of samples will be determined by the tolerance `tol`. Defaults to `nothing`.
 - `cost::AbstractCost`: The cost function to be used. Defaults to a composite cost combining `UniformCost` and `VisvalingamCost`.
-- `tol`: The tolerance for the maximum cost. Defaults to `1e-3`.
+- `tol`: The tolerance for the maximum cost. Defaults to `1e-3`. The tolerance is only used if `nsamples` is `nothing`.
 - `maxsamples`: The maximum number of samples. Defaults to `10000`.
 
 # Returns
@@ -72,7 +73,8 @@ function sample_costs(
     f,
     a,
     b,
-    cost::AbstractCost{N}=CompositeCost((UniformCost((a, b)), VisvalingamCost((a, b), (a, b))), (1, 100));
+    nsamples::Union{Int, Nothing}=nothing;
+    cost::AbstractCost{N}=CompositeCost((UniformCost((a, b)), VisvalingamCost((a, b), (a, b))), (1, 100)),
     tol=1e-3,
     maxsamples=10000
 ) where {N}
@@ -80,7 +82,12 @@ function sample_costs(
     L = abs(b - a)
     shift = min(10*eps(), 1/maxsamples/2)
 
-    x = collect(range(a + L*shift, b - L*shift; length=5*N))
+    if isnothing(nsamples)
+        nsamples = maxsamples
+    end
+    init_nsamples = min(5*N, nsamples, maxsamples)
+
+    x = collect(range(a + L*shift, b - L*shift; length=init_nsamples))
     rand_coef = 2e-2
     for k in 2:(length(x) - 1)
         x[k] = x[k] + rand_coef*randn()*(x[k+1] - x[k-1])
@@ -93,8 +100,8 @@ function sample_costs(
         c[k] = cost(svk(x, k, N), svk(y, k, N))
     end
 
-    counter = N
-    while maximum(c) > tol && counter < maxsamples
+    counter = length(x)
+    while maximum(c) > tol && counter < nsamples && counter < maxsamples
         refine!(x, y, c, f, cost)
         counter += 1
     end
@@ -107,7 +114,7 @@ function sample_costs(
 end
 
 """
-    sample(f, a, b; cost::AbstractCost=CompositeCost((UniformCost(a, b), VisvalingamCost(a, b, f(a), f(b))), (1, 100)), tol=1e-3, maxsamples=10000)
+    sample(f, a, b, nsamples::Uniont{Int, Nothing}; cost::AbstractCost=CompositeCost((UniformCost(a, b), VisvalingamCost(a, b, f(a), f(b))), (1, 100)), tol=1e-3, maxsamples=10000)
 
 Samples the function `f` over the interval `[a, b]` using the specified cost function. The sampling process continues until the maximum cost is below the tolerance `tol` or the maximum number of samples `maxsamples` is reached.
 
@@ -115,8 +122,9 @@ Samples the function `f` over the interval `[a, b]` using the specified cost fun
 - `f`: The function to be sampled.
 - `a`: The start of the interval.
 - `b`: The end of the interval.
+- `nsamples::Union{Int, Nothing}`: The number of samples to be taken. If `nothing`, the number of samples will be determined by the tolerance `tol`. Defaults to `nothing`.
 - `cost::AbstractCost`: The cost function to be used. Defaults to a composite cost combining `UniformCost` and `VisvalingamCost`.
-- `tol`: The tolerance for the maximum cost. Defaults to `1e-3`.
+- `tol`: The tolerance for the maximum cost. Defaults to `1e-3`. The tolerance is only used if `nsamples` is `nothing`.
 - `maxsamples`: The maximum number of samples. Defaults to `10000`.
 
 # Returns
@@ -127,10 +135,11 @@ function sample(
     f,
     a,
     b,
-    cost=CompositeCost((UniformCost((a, b)), VisvalingamCost((a, b), (a, b))), (1, 100));
+    nsamples::Union{Int, Nothing}=nothing;
+    cost=CompositeCost((UniformCost((a, b)), VisvalingamCost((a, b), (a, b))), (1, 100)),
     tol=1e-3,
     maxsamples=10000
 )
-    x, y, c = sample_costs(f, a, b, cost; tol=tol, maxsamples=maxsamples)
+    x, y, c = sample_costs(f, a, b, nsamples; cost=cost, tol=tol, maxsamples=maxsamples)
     return x, y
 end
