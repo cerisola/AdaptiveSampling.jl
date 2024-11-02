@@ -20,6 +20,22 @@ using Test
         nsamples = 100
         x, y = sample(f, a, b, nsamples)
         @test length(x) == nsamples
+    
+        g(x) = exp(-x^2)
+        a, b = -1, 1
+        xd, yd = sample(g, a, b)
+        xc, yc = sample(g, a, b, 2*length(xd))
+        @test length(xc) == 2*length(xd)
+
+        intd = 0.0
+        intc = 0.0
+        for i in 1:(length(xd)-1)
+            intd += (xd[i+1] - xd[i]) * (yd[i+1] + yd[i]) / 2
+        end
+        for i in 1:(length(xc)-1)
+            intc += (xc[i+1] - xc[i]) * (yc[i+1] + yc[i]) / 2
+        end
+        @test intd ≈ intc rtol=1e-5
     end
 
     @testset "UniformCost" begin
