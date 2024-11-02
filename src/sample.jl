@@ -74,7 +74,7 @@ function sample_costs(
     a,
     b,
     nsamples::Union{Int, Nothing}=nothing;
-    cost::AbstractCost{N}=CompositeCost((UniformCost((a, b)), VisvalingamCost((a, b), (a, b))), (1, 100)),
+    cost::AbstractCost{N}=VisvalingamCost((a, b)),
     tol=1e-3,
     maxsamples=10000
 ) where {N}
@@ -136,7 +136,7 @@ function sample(
     a,
     b,
     nsamples::Union{Int, Nothing}=nothing;
-    cost=CompositeCost((UniformCost((a, b)), VisvalingamCost((a, b), (a, b))), (1, 100)),
+    cost=VisvalingamCost((a, b)),
     tol=1e-3,
     maxsamples=10000
 )
